@@ -1,5 +1,5 @@
 {
   "name": "Waku Waku Reversi",
-  "description": "A fun and friendly Othello (Reversi) game for kids, featuring cute panda and cat characters. The game has a bright, cheerful design, playful animations, and is easy to play. Built with React.",
+  "description": "A fun and friendly Othello (Reversi) game for kids. The game has a bright, cheerful design, playful animations, and is easy to play. Built with React.",
   "requestFramePermissions": []
 }

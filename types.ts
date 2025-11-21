@@ -18,7 +18,7 @@ export interface Move {
   col: number;
 }
 
-export type GameMode = 'character' | 'classic' | 'custom';
+export type GameMode = 'classic' | 'custom';
 
 export interface CustomCharacters {
   [Player.Black]: string; // SVG data URI

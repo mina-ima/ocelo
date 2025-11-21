@@ -1,6 +1,7 @@
+
 import React from 'react';
 import { CellState, Player, GameMode, CustomCharacters } from '../types';
-import { pandaSVG, catSVG, classicBlackSVG, classicWhiteSVG } from '../assets';
+import { classicBlackSVG, classicWhiteSVG } from '../assets';
 
 interface GameCellProps {
   cellState: CellState;
@@ -20,15 +21,8 @@ const GameCell: React.FC<GameCellProps> = ({ cellState, onClick, isValidMove, ga
     if (gameMode === 'custom' && customCharacters) {
       src = cellState === Player.Black ? customCharacters[Player.Black] : customCharacters[Player.White];
       alt = 'Custom piece';
-    } else if (gameMode === 'character') {
-      if (cellState === Player.Black) {
-        src = pandaSVG;
-        alt = 'Panda piece';
-      } else {
-        src = catSVG;
-        alt = 'Cat piece';
-      }
     } else {
+      // Classic mode
       if (cellState === Player.Black) {
         src = classicBlackSVG;
         alt = 'Black piece';
@@ -43,9 +37,7 @@ const GameCell: React.FC<GameCellProps> = ({ cellState, onClick, isValidMove, ga
 
   const getAriaLabel = () => {
     if (cellState) {
-        const playerName = gameMode === 'character' 
-            ? (cellState === Player.Black ? 'Panda' : 'Cat')
-            : gameMode === 'custom'
+        const playerName = gameMode === 'custom'
             ? (cellState === Player.Black ? 'Player 1' : 'Player 2')
             : (cellState === Player.Black ? 'Black' : 'White');
         return `Cell with ${playerName} piece`;

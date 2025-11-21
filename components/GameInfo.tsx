@@ -1,6 +1,7 @@
+
 import React from 'react';
 import { Player, Scores, GameMode, CustomCharacters } from '../types';
-import { pandaSVG, catSVG, classicBlackSVG, classicWhiteSVG } from '../assets';
+import { classicBlackSVG, classicWhiteSVG } from '../assets';
 
 
 interface GameInfoProps {
@@ -19,10 +20,8 @@ const GameInfo: React.FC<GameInfoProps> = ({ currentPlayer, scores, onRestart, g
     if (gameMode === 'custom') {
       return player === Player.Black ? 'プレイヤー1' : 'プレイヤー2';
     }
-    if (gameMode === 'classic') {
-      return player === Player.Black ? 'くろ' : 'しろ';
-    }
-    return player === Player.Black ? 'パンダ' : 'ねこ';
+    // Classic mode default
+    return player === Player.Black ? 'くろ' : 'しろ';
   }
 
   const renderStatusMessage = () => {
@@ -31,13 +30,13 @@ const GameInfo: React.FC<GameInfoProps> = ({ currentPlayer, scores, onRestart, g
         return <h2 className="text-2xl text-accent-blue">ひきわけ！</h2>; // It's a Draw!
       }
       const winnerName = getPlayerName(winner as Player);
-      return <h2 className="text-2xl text-accent-yellow">{winnerName}のかち！</h2>; // Panda/Cat Wins!
+      return <h2 className="text-2xl text-accent-yellow">{winnerName}のかち！</h2>;
     }
     if (turnSkippedMessage) {
         return <p className="text-xl text-orange-500 h-8">{turnSkippedMessage}</p>;
     }
     const currentName = getPlayerName(currentPlayer);
-    return <p className="text-xl h-8">{currentName}のターン</p>; // Panda's/Cat's Turn
+    return <p className="text-xl h-8">{currentName}のターン</p>;
   };
 
   const playerInfoClasses = (player: Player) => 
@@ -49,20 +48,16 @@ const GameInfo: React.FC<GameInfoProps> = ({ currentPlayer, scores, onRestart, g
     if (gameMode === 'custom' && customCharacters) {
         return player === Player.Black ? customCharacters[Player.Black] : customCharacters[Player.White];
     }
-    if (gameMode === 'classic') {
-        return player === Player.Black ? classicBlackSVG : classicWhiteSVG;
-    }
-    return player === Player.Black ? pandaSVG : catSVG;
+    // Classic mode default
+    return player === Player.Black ? classicBlackSVG : classicWhiteSVG;
   }
   
   const getPlayerAlt = (player: Player) => {
     if (gameMode === 'custom') {
         return player === Player.Black ? "Player 1's custom piece" : "Player 2's custom piece";
     }
-    if (gameMode === 'classic') {
-        return player === Player.Black ? "Black piece icon" : "White piece icon";
-    }
-    return player === Player.Black ? "Panda piece icon" : "Cat piece icon";
+    // Classic mode default
+    return player === Player.Black ? "Black piece icon" : "White piece icon";
   }
 
   const BlackPlayerIcon = getPlayerIcon(Player.Black);

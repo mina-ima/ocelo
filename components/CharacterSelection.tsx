@@ -1,6 +1,7 @@
+
 import React from 'react';
 import { GameMode } from '../types';
-import { pandaSVG, catSVG, classicBlackSVG, classicWhiteSVG } from '../assets';
+import { classicBlackSVG, classicWhiteSVG } from '../assets';
 
 interface HomeScreenProps {
   onGameStart: (mode: GameMode) => void;
@@ -26,19 +27,6 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onGameStart, onStartCreation })
           <p className="text-3xl font-bold">キャラクターをつくる</p>
         </button>
         
-        <button
-          onClick={() => onGameStart('character')}
-          className="bg-white p-6 rounded-2xl shadow-lg hover:shadow-2xl transform hover:-translate-y-2 transition-all duration-300 ease-in-out w-80"
-          aria-label="Play with Panda and Cat pieces"
-        >
-          <div className="flex items-center justify-center gap-4 mb-4">
-            <img src={pandaSVG} alt="Panda icon" className="w-12 h-12" />
-            <span className="text-2xl font-bold text-slate-500">VS</span>
-            <img src={catSVG} alt="Cat icon" className="w-12 h-12" />
-          </div>
-          <p className="text-3xl font-bold text-accent-blue">パンダとねこ</p>
-        </button>
-
         <button
           onClick={() => onGameStart('classic')}
           className="bg-white p-6 rounded-2xl shadow-lg hover:shadow-2xl transform hover:-translate-y-2 transition-all duration-300 ease-in-out w-80"

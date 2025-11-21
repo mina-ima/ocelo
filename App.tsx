@@ -117,8 +117,6 @@ const App: React.FC = () => {
                 // Skip turn
                 const skippedPlayerName = gameMode === 'custom'
                     ? (currentPlayer === Player.Black ? 'プレイヤー1' : 'プレイヤー2')
-                    : gameMode === 'character' 
-                    ? (currentPlayer === Player.Black ? 'パンダ' : 'ねこ')
                     : (currentPlayer === Player.Black ? 'くろ' : 'しろ');
                 setTurnSkippedMessage(`${skippedPlayerName}の番はスキップ！`);
                 const timer = setTimeout(() => setTurnSkippedMessage(''), 2000);
