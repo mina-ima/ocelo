@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from 'react';
 import { Player, CustomCharacters } from '../types';
 
@@ -60,38 +61,11 @@ const generateSVG = (design: Design): string => {
     return `data:image/svg+xml;base64,${btoa(svgContent)}`;
 };
 
-const processUploadedImage = (file: File): Promise<string> => {
+const readFileAsDataURL = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
-        reader.onload = (e) => {
-            const img = new Image();
-            img.onload = () => {
-                const size = Math.min(img.width, img.height);
-                const canvas = document.createElement('canvas');
-                canvas.width = 200; 
-                canvas.height = 200;
-                const ctx = canvas.getContext('2d');
-                if(!ctx) return reject('No context');
-                
-                // Draw circle clip
-                ctx.beginPath();
-                ctx.arc(100, 100, 95, 0, Math.PI * 2);
-                ctx.clip();
-
-                // Draw image centered and cropped
-                const sx = (img.width - size) / 2;
-                const sy = (img.height - size) / 2;
-                ctx.drawImage(img, sx, sy, size, size, 0, 0, 200, 200);
-
-                // Draw border
-                ctx.strokeStyle = '#1e293b';
-                ctx.lineWidth = 6;
-                ctx.stroke();
-                
-                resolve(canvas.toDataURL());
-            };
-            img.src = e.target?.result as string;
-        };
+        reader.onload = (e) => resolve(e.target?.result as string);
+        reader.onerror = reject;
         reader.readAsDataURL(file);
     });
 };
@@ -139,19 +113,154 @@ const TemplateEditor: React.FC<{ design: Design, setDesign: (d: Design) => void 
     </div>
 );
 
+const ImageCropper: React.FC<{ src: string; onUpdate: (dataUrl: string) => void; onCancel: () => void }> = ({ src, onUpdate, onCancel }) => {
+    const [pos, setPos] = useState({ x: 0, y: 0 });
+    const [scale, setScale] = useState(1);
+    const [baseScale, setBaseScale] = useState(1);
+    const [imgObj, setImgObj] = useState<HTMLImageElement | null>(null);
+    const isDragging = useRef(false);
+    const lastPos = useRef({ x: 0, y: 0 });
+
+    // Load image and determine initial scale
+    useEffect(() => {
+        const img = new Image();
+        img.onload = () => {
+            setImgObj(img);
+            const minDim = Math.min(img.width, img.height);
+            // Initial fit: cover the 200px area roughly
+            const initScale = 200 / minDim;
+            setBaseScale(initScale);
+            setScale(initScale);
+        };
+        img.src = src;
+    }, [src]);
+
+    // Generate cropped image
+    useEffect(() => {
+        if (!imgObj) return;
+        const canvas = document.createElement('canvas');
+        canvas.width = 200;
+        canvas.height = 200;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return;
+
+        // Create circular clip
+        ctx.beginPath();
+        ctx.arc(100, 100, 95, 0, Math.PI * 2);
+        ctx.clip();
+
+        // Draw image
+        // Translate to center + offset, then scale
+        ctx.translate(100 + pos.x, 100 + pos.y);
+        ctx.scale(scale, scale);
+        ctx.drawImage(imgObj, -imgObj.width / 2, -imgObj.height / 2);
+
+        // Reset transform for border
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
+        ctx.strokeStyle = '#1e293b';
+        ctx.lineWidth = 6;
+        ctx.beginPath();
+        ctx.arc(100, 100, 95, 0, Math.PI * 2);
+        ctx.stroke();
+
+        onUpdate(canvas.toDataURL());
+    }, [pos, scale, imgObj, onUpdate]);
+
+    const handlePointerDown = (e: React.PointerEvent) => {
+        isDragging.current = true;
+        lastPos.current = { x: e.clientX, y: e.clientY };
+        (e.target as HTMLElement).setPointerCapture(e.pointerId);
+    };
+
+    const handlePointerMove = (e: React.PointerEvent) => {
+        if (!isDragging.current) return;
+        e.preventDefault();
+        const dx = e.clientX - lastPos.current.x;
+        const dy = e.clientY - lastPos.current.y;
+        lastPos.current = { x: e.clientX, y: e.clientY };
+        setPos(p => ({ x: p.x + dx, y: p.y + dy }));
+    };
+
+    const handlePointerUp = () => {
+        isDragging.current = false;
+    };
+
+    return (
+        <div className="flex flex-col items-center gap-4 w-full animate-pop">
+            <div 
+                className="relative w-[200px] h-[200px] border-4 border-slate-200 rounded-full overflow-hidden bg-slate-100 cursor-move touch-none shadow-inner"
+                onPointerDown={handlePointerDown}
+                onPointerMove={handlePointerMove}
+                onPointerUp={handlePointerUp}
+                onPointerLeave={handlePointerUp}
+            >
+                {imgObj && (
+                    <div 
+                        style={{
+                            width: '100%',
+                            height: '100%',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                        }}
+                    >
+                        <img 
+                            src={src} 
+                            alt="" 
+                            style={{ 
+                                transform: `translate(${pos.x}px, ${pos.y}px) scale(${scale})`,
+                                maxWidth: 'none', 
+                                pointerEvents: 'none',
+                                userSelect: 'none'
+                            }} 
+                        />
+                    </div>
+                )}
+            </div>
+            
+            <div className="w-full px-8">
+                <div className="flex justify-between text-xs font-bold text-slate-500 mb-1">
+                    <span>ズーム</span>
+                </div>
+                <input 
+                    type="range" 
+                    min={baseScale * 0.1} 
+                    max={baseScale * 5} 
+                    step={baseScale * 0.1} 
+                    value={scale} 
+                    onChange={(e) => setScale(parseFloat(e.target.value))}
+                    className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-accent-blue"
+                />
+            </div>
+
+            <div className="flex gap-2">
+                <button onClick={onCancel} className="text-sm text-slate-400 underline hover:text-slate-600">
+                    ちがうしゃしんにする
+                </button>
+            </div>
+            <p className="text-xs text-slate-400">ドラッグしていどう</p>
+        </div>
+    );
+};
+
 const PhotoUploader: React.FC<{ onImageSelect: (img: string) => void }> = ({ onImageSelect }) => {
+    const [rawImg, setRawImg] = useState<string | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
             try {
-                const processed = await processUploadedImage(e.target.files[0]);
-                onImageSelect(processed);
+                const raw = await readFileAsDataURL(e.target.files[0]);
+                setRawImg(raw);
             } catch (err) {
                 console.error(err);
             }
         }
     };
+
+    if (rawImg) {
+        return <ImageCropper src={rawImg} onUpdate={onImageSelect} onCancel={() => setRawImg(null)} />;
+    }
 
     return (
         <div className="flex flex-col items-center justify-center h-48 w-full bg-slate-50 rounded-lg border-2 border-dashed border-slate-300 hover:border-accent-blue transition-colors cursor-pointer group animate-pop"
@@ -370,7 +479,7 @@ const CharacterCreator: React.FC<CharacterCreatorProps> = ({ onCreationComplete,
         <div className="min-h-screen bg-light-bg flex flex-col items-center p-4 font-pop">
             <header className="w-full max-w-lg flex justify-between items-center mb-6">
                 <button onClick={onBack} className="text-slate-500 font-bold hover:text-slate-700">
-                    ← もどる
+                    ← ホーム
                 </button>
                 <h1 className="text-xl font-bold text-accent-blue">
                     {playerName} のキャラ

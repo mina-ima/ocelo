@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useCallback } from 'react';
 import { Board, CellState, Move, Player, Scores, GameMode, CustomCharacters } from './types';
 import { BOARD_SIZE } from './constants';
@@ -177,8 +178,16 @@ const App: React.FC = () => {
     if (view === 'game' && gameMode) {
         return (
             <div className="min-h-screen bg-light-bg flex flex-col items-center justify-center p-4">
-                <header className="text-center mb-6">
-                    <h1 className="text-4xl md:text-5xl font-bold tracking-wider text-accent-blue" style={{textShadow: '2px 2px #FFFFFF'}}>わくわくリバーシ</h1>
+                <header className="w-full max-w-lg md:max-w-xl relative flex items-center justify-center mb-6">
+                    <button 
+                        onClick={() => setView('home')}
+                        className="absolute left-0 z-10 text-slate-500 font-bold hover:text-slate-700 bg-white/80 backdrop-blur-sm px-4 py-2 rounded-full shadow-sm hover:shadow-md transition-all text-sm md:text-base"
+                    >
+                        ← ホーム
+                    </button>
+                    <h1 className="text-3xl md:text-5xl font-bold tracking-wider text-accent-blue pointer-events-none" style={{textShadow: '2px 2px #FFFFFF'}}>
+                        わくわくリバーシ
+                    </h1>
                 </header>
                 <main className="w-full max-w-lg md:max-w-xl flex flex-col items-center space-y-6">
                     <GameInfo 
