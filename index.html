@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>わくわくリバーシ</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Mochiy+Pop+One&display=swap" rel="stylesheet">
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              'board-bg': '#22c55e', // green-500
+              'board-border': '#16a34a', // green-600
+              'light-bg': '#f0f9ff', // sky-50
+              'dark-text': '#1e293b', // slate-800
+              'accent-blue': '#3b82f6', // blue-500
+              'accent-yellow': '#facc15', // yellow-400
+            },
+            fontFamily: {
+              'pop': ['"Mochiy Pop One"', 'sans-serif'],
+            },
+            keyframes: {
+              pop: {
+                '0%': { transform: 'scale(0.5)', opacity: '0' },
+                '80%': { transform: 'scale(1.1)', opacity: '1' },
+                '100%': { transform: 'scale(1)' },
+              },
+              pulse: {
+                '0%, 100%': { opacity: '1', transform: 'scale(1)' },
+                '50%': { opacity: '0.7', transform: 'scale(0.9)' },
+              }
+            },
+            animation: {
+              pop: 'pop 0.3s ease-out forwards',
+              pulse: 'pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+            }
+          },
+        },
+      }
+    </script>
+  <script type="importmap">
+{
+  "imports": {
+    "react": "https://aistudiocdn.com/react@^19.2.0",
+    "react/": "https://aistudiocdn.com/react@^19.2.0/",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/"
+  }
+}
+</script>
+</head>
+  <body class="bg-light-bg text-dark-text font-pop">
+    <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
+  </body>
+</html>
